@@ -11,8 +11,10 @@ var {
   Text,
   TextInput,
   View,
+  ScrollView,
   MapRegionInput,
   MapView,
+  TabBarIOS,
 } = React;
 
 var regionText = {
@@ -25,14 +27,88 @@ var regionText = {
 var mapper = React.createClass({
   render: function () {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to mapper!
-        </Text>
-        <MapViewExample/>
-      </View>
+      <MainTabBar>
+        <ScrollView style={styles.mainScrollView} contentContainerStyle={styles.container}>
+          <Text style={styles.welcome}>
+            Welcome to mapper!
+          </Text>
+          <MainMapView/>
+        </ScrollView>
+      </MainTabBar>
     );
   }
+});
+
+var MainTabBar = React.createClass({
+  statics: {
+    title: '<TabBarIOS>',
+    description: 'Tab-based navigation.'
+  },
+
+  getInitialState: function() {
+    return {
+      selectedTab: 'mapTab',
+      notifCount: 0,
+      presses: 0,
+    };
+  },
+
+  _renderContent: function(color: string, pageText: string) {
+    return (
+      <View style={[styles.tabContent, {backgroundColor: color}]}>
+        <Text style={styles.tabText}>{pageText}</Text>
+        <Text style={styles.tabText}>{this.state.presses} re-renders of the More tab</Text>
+      </View>
+    );
+  },
+
+  render: function() {
+    return (
+      <TabBarIOS>
+        <TabBarIOS.Item
+          systemIcon="history"
+          badge={this.state.notifCount > 0 ? this.state.notifCount : undefined}
+          selected={this.state.selectedTab === 'redTab'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'redTab',
+              notifCount: this.state.notifCount + 1,
+            });
+          }}>
+          {this._renderContent('#783E33', 'Red Tab')}
+        </TabBarIOS.Item>
+
+        <TabBarIOS.Item
+          systemIcon="favorites"
+          title="Map"
+          selected={this.state.selectedTab === 'mapTab'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'mapTab',
+            });
+          }}>
+          <ScrollView style={styles.mainScrollView} contentContainerStyle={styles.container}>
+            <Text style={styles.welcome}>
+              Welcome to mapper!
+            </Text>
+            <MainMapView/>
+          </ScrollView>
+        </TabBarIOS.Item>
+
+        <TabBarIOS.Item
+          systemIcon="more"
+          selected={this.state.selectedTab === 'greenTab'}
+          onPress={() => {
+            this.setState({
+              selectedTab: 'greenTab',
+              presses: this.state.presses + 1
+            });
+          }}>
+          {this._renderContent('#21551C', 'Green Tab')}
+        </TabBarIOS.Item>
+      </TabBarIOS>
+    );
+  },
 });
 
 var MapRegionInput = React.createClass({
@@ -149,7 +225,7 @@ var MapRegionInput = React.createClass({
 
 });
 
-var MapViewExample = React.createClass({
+var MainMapView = React.createClass({
 
   getInitialState: function () {
     return {
@@ -214,11 +290,25 @@ var MapViewExample = React.createClass({
 });
 
 var styles = StyleSheet.create({
-  container: {
+  welcome: {
+    fontSize: 24,
+  },
+  tabContent: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
+  },
+  tabText: {
+    color: 'white',
+    margin: 50,
+  },
+  mainScrollView: {
+    flex: 1,
     backgroundColor: '#F5FCFF',
+  },
+  container: {
+    marginTop: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   map: {
     height: 320,
